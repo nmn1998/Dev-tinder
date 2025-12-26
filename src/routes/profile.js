@@ -13,7 +13,7 @@ profileRouter.get("/profile/view", authMiddleware, async (req, res) => {
     res.status(200).send({
       success: true,
       message: "Profile fetched successfully",
-      user: user,
+      data: user,
     });
   } catch (err) {
     res.status(400).send({
@@ -41,12 +41,40 @@ profileRouter.patch("/profile/edit", authMiddleware, async (req, res) => {
     res.status(200).send({
       success: true,
       message: "Profile updated successfully",
-      user: loggedInUser,
+      data: loggedInUser,
     });
   } catch (err) {
     res.status(400).send({
       success: false,
       message: "Error updating profile",
+      error: err.message,
+    });
+  }
+});
+
+// update photo for all users
+profileRouter.put("/profile/updatePhoto", authMiddleware, async (req, res) => {
+  try {
+    const photoUrl = "https://picsum.photos/seed/picsum/200";
+    
+    const result = await User.updateMany(
+      {},
+      { photoUrl },
+      { runValidators: true }
+    );
+
+    res.status(200).send({
+      success: true,
+      message: "All users' photos updated successfully",
+      data: {
+        matchedCount: result.matchedCount,
+        modifiedCount: result.modifiedCount,
+      },
+    });
+  } catch (err) {
+    res.status(400).send({
+      success: false,
+      message: "Error updating photos",
       error: err.message,
     });
   }

@@ -1,13 +1,14 @@
 const express = require("express");
-
 const app = express();
+
 const connectDB = require("./config/database");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
+require("dotenv").config();
 const authRouter = require("./routes/auth");
 const profileRouter = require("./routes/profile");
 const requestRouter = require("./routes/request");
-const userRouter = require("./routes/user");
+const userRouter = require("./routes/user")
 app.use(
   cors({
     origin: "http://localhost:5173",
@@ -24,7 +25,7 @@ app.use("/", userRouter);
 connectDB()
   .then(() => {
     console.log("Connected to MongoDB");
-    app.listen(3000, () => {
+    app.listen(process.env.PORT, () => {
       console.log("Server is running on port 3000");
     });
   })

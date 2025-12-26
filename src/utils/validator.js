@@ -21,6 +21,7 @@ const validateProfileEditFields = (data) => {
     "gender",
     "about",
     "skills",
+    "photoUrl",
   ];
   const isUpdateAllowed = Object.keys(data).every((field) =>
     ALLOWED_FIELDS.includes(field)

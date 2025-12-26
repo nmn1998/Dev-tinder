@@ -40,18 +40,18 @@ const userSchema = new mongoose.Schema(
       type: String,
       validate: {
         validator: function (v) {
-          return v === "male" || v === "female" || v === "other";
+          return v === "Male" || v === "Female" || v === "Other";
         },
-        message: "Gender must be male, female or other",
+        message: "Gender must be either Male, Female or Other",
       },
     },
     photoUrl: {
       type: String,
-      validate(value) {
-        if (!validator.isURL(value)) {
-          throw new Error(`Invalid photo URL: ${value}`);
-        }
-      },
+      // validate(value) {
+      //   if (!validator.isURL(value)) {
+      //     throw new Error(`Invalid photo URL: ${value}`);
+      //   }
+      // },
     },
     about: {
       type: String,
@@ -64,9 +64,10 @@ const userSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-userSchema.methods.getJwtToken = async function () {
+userSchema.methods.getJwtToken = function () {
   try {
-    return await jwt.sign({ userId: this._id }, "devTinder@98", {
+    const secret = process.env.JWT_SECRET;
+    return jwt.sign({ userId: this._id }, secret, {
       expiresIn: "7d",
     });
   } catch (err) {

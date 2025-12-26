@@ -22,6 +22,10 @@ authRouter.post("/signup", async (req, res) => {
     });
 
     const savedUser = await user.save();
+    const token = user.getJwtToken();
+    res.cookie("token", token, {
+      expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+    });
     res.status(201).send({
       success: true,
       message: "User created successfully",
@@ -39,24 +43,44 @@ authRouter.post("/signup", async (req, res) => {
 authRouter.post("/login", async (req, res) => {
   try {
     const { emailId, password } = req.body;
+    if (!emailId || !password) {
+      return res.status(400).send({
+        success: false,
+        message: "Error logging in",
+        error: "Email and password are required",
+      });
+    }
+
     const user = await User.findOne({ emailId });
     if (!user) {
-      throw new Error("Invalid Credentials");
+      return res.status(400).send({
+        success: false,
+        message: "Error logging in",
+        error: "Invalid Credentials",
+      });
     }
+
     const isPasswordCorrect = await bcrypt.compare(password, user.password);
     if (!isPasswordCorrect) {
-      throw new Error("Invalid Credentials");
+      return res.status(401).send({
+        success: false,
+        message: "Error logging in",
+        error: "Invalid Credentials",
+      });
     }
-    const token = await user.getJwtToken();
+
+    const token = user.getJwtToken();
     res.cookie("token", token, {
       expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
     });
+
     res.status(200).send({
       success: true,
       message: "Logged in successfully",
       data: user,
     });
   } catch (err) {
+    console.error("Login error:", err);
     res.status(400).send({
       success: false,
       message: "Error logging in",

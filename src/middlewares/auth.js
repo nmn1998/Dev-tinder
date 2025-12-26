@@ -4,12 +4,19 @@ const authMiddleware = async (req, res, next) => {
   try {
     const token = req.cookies?.token;
     if (!token) {
-      throw new Error("Unauthorized");
+      return res.status(401).send({
+        success: false,
+        message: "Token not found",
+      });
     }
-    const decoded = jwt.verify(token, "devTinder@98");
+    const secret = process.env.JWT_SECRET;
+    const decoded = jwt.verify(token, secret);  
     const user = await User.findById(decoded.userId);
     if (!user) {
-      throw new Error("User not found");
+      return res.status(401).send({
+        success: false,
+        message: "User not found",
+      });
     }
     req.user = user;
     next();
