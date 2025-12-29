@@ -1,6 +1,6 @@
 const express = require("express");
 const app = express();
-
+const http = require("http");
 const connectDB = require("./config/database");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
@@ -9,6 +9,9 @@ const authRouter = require("./routes/auth");
 const profileRouter = require("./routes/profile");
 const requestRouter = require("./routes/request");
 const userRouter = require("./routes/user")
+const chatRouter = require("./routes/chat");
+const initializeSocket = require("./utils/socket");
+
 app.use(
   cors({
     origin: "http://localhost:5173",
@@ -22,11 +25,17 @@ app.use("/", authRouter);
 app.use("/", profileRouter);
 app.use("/", requestRouter);
 app.use("/", userRouter);
+app.use("/", chatRouter);
+
+const server = http.createServer(app);
+const io = initializeSocket(server);
+
+
 connectDB()
   .then(() => {
     console.log("Connected to MongoDB");
-    app.listen(process.env.PORT, () => {
-      console.log("Server is running on port 3000");
+    server.listen(process.env.PORT, () => {
+      console.log(`Server is running on port ${process.env.PORT}`);
     });
   })
   .catch((err) => {
